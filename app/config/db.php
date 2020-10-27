@@ -2,11 +2,15 @@
 
 return [
     'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=localhost;dbname=yii2basic',
-    'username' => 'root',
-    'password' => '',
+
+    'dsn' => env('DB_DSN'),
+    'username' => env('DB_USERNAME'),
+    'password' => env('DB_PASSWORD'),
     'charset' => 'utf8',
 
+    'schemaCache' => 'cache',
+    'enableSchemaCache' => env('DB_SCHEMECHACHE'),
+    'schemaCacheDuration' => 360, // Duration of schema cache.
     // Schema cache options (for production environment)
     //'enableSchemaCache' => true,
     //'schemaCacheDuration' => 60,

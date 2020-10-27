@@ -5,15 +5,24 @@ $db = require __DIR__ . '/db.php';
 
 $config = [
     'id' => 'basic',
+    'name' => env('APP_NAME'),
     'basePath' => dirname(__DIR__),
     'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
+    'timeZone' => 'Asia/Jakarta',
     'bootstrap' => ['log'],
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm' => '@vendor/npm-asset',
-        '@theme' => __DIR__ . '/app/theme',
+        '@theme' => '@app/theme',
+    ],
+    'modules' => [
+        'migration' => [
+            'class' => 'c006\utility\migration\Module',
+        ],
     ],
     'components' => [
+        'db' => $db,
+
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'b4rrZtTHAJWxMRQLJhZORB168sWZaIWI',
@@ -25,15 +34,37 @@ $config = [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
         ],
+
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager',
+        ],
+        'urlManager' => [
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'enableStrictParsing' => false,
+            'rules' => [
+                '/' => 'site/index',
+                '<action>' => 'site/<action>',
+                '<controller:\w+>/<id:\d+>' => '<controller>/view',
+                '<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
+                '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
+            ],
+        ],
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
-            // send all mails to a file by default. You have to set
-            // 'useFileTransport' to false and configure a transport
-            // for the mailer to send real emails.
-            'useFileTransport' => true,
+            'viewPath' => '@app/mail',
+            'useFileTransport' => false, // false agar bisa kirim lewat online
+            'transport' => [
+                'class' => 'Swift_MAILTransport',
+                'host' => env('MAIL_HOST'),
+                'username' => env('MAIL_USERNAME'),
+                'password' => env('MAIL_PASSWORD'),
+                'port' => env('MAIL_PORT'),
+                'encryption' => env('MAIL_ENCRYPTION'),
+            ],
         ],
 
         'log' => [
@@ -45,7 +76,6 @@ $config = [
                 ],
             ],
         ],
-        'db' => $db,
         'assetManager' => [
             'class' => 'yii\web\AssetManager',
             'hashCallback' => function ($path) {
