@@ -19,6 +19,9 @@ $config = [
         'migration' => [
             'class' => 'c006\utility\migration\Module',
         ],
+        'utility' => [
+            'class' => 'app\modules\utility\Module',
+        ],
     ],
     'components' => [
         'db' => $db,
