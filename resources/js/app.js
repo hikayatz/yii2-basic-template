@@ -42,3 +42,5 @@
       $form.find('input:checkbox').removeAttr('checked');
    }
 }( jQuery ));
+
+var func = {}

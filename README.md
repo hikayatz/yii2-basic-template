@@ -2,7 +2,7 @@
 
 <!-- // todo : setup app -->
 
--  git clone https://github.com/hikayatz/yii2-basic-template.git
+-  `git clone https://github.com/hikayatz/yii2-basic-template.git`
 -  cd yii2-basic-template
 -  composer install
 -  copy .env.example.php .env

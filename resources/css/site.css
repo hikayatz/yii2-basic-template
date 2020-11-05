@@ -116,7 +116,32 @@ a.desc:after {
 }
 
 /* reset custom */
-
+.row.toolbar{
+   padding: 4px 0px;
+}
+.clickable {
+   cursor: pointer;
+}
+.bar-search{
+   float: right;
+}
+.table.datatable{
+   margin-bottom: 13px;
+}
+.no-padding{
+   padding: 0px !important;
+}
+table{
+   font-size: 13px;
+}
+@media only screen and (max-width: 758px) {
+   .bar-search {
+     float: none;
+   }
+ }
+.table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+   vertical-align: middle;
+}
 .menu-description {
 	font-weight: normal;
 }
@@ -138,13 +163,22 @@ label{
 .form-control:focus {
    box-shadow: none;
 }
-.btn:not(.btn-link):not(.btn-circle) {
+.btn:not(.btn-link):not(.btn-circle):not(.btn-lg) {
    -webkit-border-radius: 2px;
    -moz-border-radius: 2px;
    -ms-border-radius: 2px;
    border-radius: 2px;
    font-size: 13px;
-   
    outline: 0;
+}
+
+.borderless td, .borderless th, .noborder td, .noborder th {
+   border: none !important;
+}
+.mb-5{
+   margin-bottom: 5px;
+}
+.mb-10{
+   margin-bottom: 10px;
 }
 
