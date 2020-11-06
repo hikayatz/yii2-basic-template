@@ -77,6 +77,18 @@ NavBar::end();
       </div>
    </footer>
 
+   <?php 
+$js = <<<JS
+   $('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
+        localStorage.setItem('activeTab', $(e.target).attr('href'));
+    });
+    var activeTab = localStorage.getItem('activeTab');
+    if(activeTab){
+        $('#myTab a[href="' + activeTab + '"]').tab('show');
+    }
+JS;
+$this->registerJs($js, yii\web\View::POS_READY);
+?>
    <?php $this->endBody()?>
 </body>
 

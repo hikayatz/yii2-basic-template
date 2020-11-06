@@ -8,7 +8,7 @@ $this->title = 'User Management';
 $this->params['breadcrumbs'][] = ['label' => 'Utility', 'url' => ['/utility/default']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div id="datatableMedisWrapper">
+<div id="datatable">
    <div class="row toolbar">
       <div class="col-md-10 bar-search form-inline">
          <form id="form_search" class="form-inline text-right ">
@@ -51,7 +51,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <?php 
 
 $js = <<<JS
-   $("#datatableMedisWrapper").datagrid({
+   $("#datatable").datagrid({
       url: '$dataUrl',
       showloading: true,
       payload: {

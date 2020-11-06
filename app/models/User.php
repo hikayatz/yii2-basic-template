@@ -182,4 +182,12 @@ class User extends ActiveRecord implements IdentityInterface
         $status = [10 => 'Active', 0 => 'Non Active'];
         return $status;
     }
+
+    public static function getUrlAvatar($model){
+         if(empty($model->photo)){
+            return Yii::getAlias("@web/public/site/default_avatar.jpg"); 
+         }else{
+            return Yii::getAlias("@web/public/users/").$model->photo;
+         }
+    }
 }

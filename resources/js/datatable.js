@@ -3,17 +3,20 @@
    $.fn.datagrid = function (options) {
       var $el = $(this)[0];
       init($el);
-      generateDatatable($el,options );
-      
-  }
-  function init($el){
-     $("#togglesearch", $el).on("click", function(e){
+      if(options.initDatatable === undefined){
+         options.initDatatable = true
+      }
+      generateDatatable($el, options);
+
+   }
+   function init($el) {
+      $("#togglesearch", $el).on("click", function (e) {
          e.preventDefault();
          // Store
          $(".searchbox", $el).toggleClass("hidden")
-         
-     });
-  }
+
+      });
+   }
 
    function generateDatatable(
       element,
@@ -21,7 +24,7 @@
       callbackSuccess = () => { },
       callbackFailed = () => { }
    ) {
-      var columns =  options.columns
+      var columns = options.columns
       const { url, limit, showloading } = options;
       if (showloading == undefined || showloading == true) {
          $.blockUI({
@@ -38,32 +41,32 @@
             message: "<h3>Memuat....</h3>",
          });
       }
-     
-      if (columns == undefined){ 
-         let columnsAttr = []       
-       
-         $("table thead th", element ).each(function(index, item){
+
+      if (columns == undefined) {
+         let columnsAttr = []
+
+         $("table thead th", element).each(function (index, item) {
             let dataItem = {}
-            
-            if(!$(this).attr("data"))
+
+            if (!$(this).attr("data"))
                dataItem.data = ""
-            else if( $(this).attr("data") === "serialcolumn"){
-               dataItem = {"searchable":0,"orderable":0,"isSerialNumber":1,"className":"text-center"}
+            else if ($(this).attr("data") === "serialcolumn") {
+               dataItem = { "searchable": 0, "orderable": 0, "isSerialNumber": 1, "className": "text-center" }
                // columnsAttr.push(dataItem)
                // continue
             }
             else
-               dataItem.data = $(this).attr("data")  
-            if($(this).attr("searchable")){
+               dataItem.data = $(this).attr("data")
+            if ($(this).attr("searchable")) {
                dataItem.searchable = $(this).attr("searchable")
             }
-            if($(this).attr("orderable")){
+            if ($(this).attr("orderable")) {
                dataItem.orderable = $(this).attr("orderable")
             }
-            if($(this).attr("className")){
+            if ($(this).attr("className")) {
                dataItem.className = $(this).attr("className")
             }
-            if($(this).attr("formatter")){
+            if ($(this).attr("formatter")) {
                dataItem.formatter = $(this).attr("formatter")
             }
             columnsAttr.push(dataItem)
@@ -71,7 +74,7 @@
          columns = columnsAttr
 
       }
-      
+
 
       const data = {
          columns,
@@ -202,11 +205,17 @@
             });
          }
       }
+      let limitPerPage = 20
+      if ($(element).find("select[name='limitPerPage']").val() !== undefined)
+         limitPerPage = $(element).find("select[name='limitPerPage']").val()
+      else if (limit !== undefined) {
+         limitPerPage = limit
+      }
       Object.assign(dataParams, {
          searchKey: $(element).find('input[name="searchKey"]').val(),
          orderedParam,
          page: pageDatatable,
-         limit: $(element).find("select[name='limitPerPage']").val(),
+         limit: limitPerPage,
       });
       $(element).find('form button[type="reset"]').unbind();
       $(element)
@@ -238,39 +247,40 @@
       if (typeof options.payload !== "undefined") {
          Object.assign(dataParams, mapPayload(options.payload));
       }
-       if(options.initDatatable === undefined){
-         options.initDatatable = true
-      }
-      if (typeof options.initDatatable !== "undefined" && !options.initDatatable) {
+      
+      if (typeof options.initDatatable !== "undefined" && !options.initDatatable && (!options.disablePush || options.disablePush === undefined  ) ) {
          const pushStateData = $.extend({}, dataParams);
+         // This creates a new browser history entry setting the state, title, and url.
          delete pushStateData.columns;
-         window.history.pushState(
-            pushStateData,
-            document.title,
-            window.location.origin +
-            window.location.pathname +
-            mappingObjectForPushState(pushStateData)
-         );
+         // window.history.pushState(
+         //    pushStateData,
+         //    document.title,
+         //    window.location.origin +
+         //    window.location.pathname +
+         //    mappingObjectForPushState(pushStateData)
+         // );
+         window.history.pushState(pushStateData, document.title, updateUrl(window.location.toString(), pushStateData))
       } else if (
          typeof options.initDatatable !== "undefined" &&
          options.initDatatable &&
          window.location.search !== ""
       ) {
-
          try {
             // breakdown query url
             let queryParam = window.location.search.split("?");
             queryParam.splice(0, 1);
             queryParam = decodeURIComponent(queryParam.join("?")).split("&");
-            
 
             queryParam.map((valueArray) => {
+
                // result split query url index 0 is key, index 1 is value
                let splitQueryUrl = valueArray.split("=");
-               console.log(splitQueryUrl)
                try {
-                  const json = JSON.parse(decodeURIComponent(splitQueryUrl[1]));
-                  
+
+                  let json = (decodeURIComponent(splitQueryUrl[1]));
+                  if(json.indexOf("{") !== -1){
+                     json = JSON.parse(json)
+                  }
                   Object.assign(dataParams, {
                      [splitQueryUrl[0]]: json,
                   });
@@ -301,11 +311,16 @@
                      case "searchKey":
                         $(element).find('input[name="searchKey"]').val(json);
                         break;
+                     case "page":
+                        pageDatatable = parseInt(json) || 1;
+                        options.notRefreshPagination = true
+                        break;
                      default:
                         $(elementPayload[splitQueryUrl[0]]).val(json);
                         break;
                   }
                } catch (e) {
+   
                   const valueInput = decodeURIComponent(splitQueryUrl[1]);
                   Object.assign(dataParams, {
                      [splitQueryUrl[0]]: valueInput,
@@ -313,7 +328,7 @@
                   switch (splitQueryUrl[0]) {
                      case "searchKey":
                         $(element).find('input[name="searchKey"]').val(valueInput);
-                        if(valueInput.length != 0 )
+                        if (valueInput.length != 0)
                            $(".searchbox", element).removeClass("hidden")
                         break;
                      default:
@@ -326,6 +341,7 @@
             });
          } catch (e) { }
       }
+
       if (
          typeof options.notRefreshPagination === "undefined" ||
          (typeof options.notRefreshPagination !== "undefined" &&
@@ -336,14 +352,14 @@
          });
          pageDatatable = 1;
       }
-      //const  dataSearch = {data.searchKey}
+
       $.ajax({
          url,
          method: "GET",
          data: dataParams,
          success: (res) => {
             const tbodySection = $($(element).find("tbody")[0]);
-            
+
             tbodySection.html("");
             if (res.rows.length > 0) {
                const records = res.rows;
@@ -375,13 +391,13 @@
 
                         }
                      }
-                     if(typeof columns[indexColumn].formatter !== "undefined"){
+                     if (typeof columns[indexColumn].formatter !== "undefined") {
                         valueOfColumn = eval(columns[indexColumn].formatter)(records[indexRecord]);
                      }
                      valueOfColumn = escapeHtml(valueOfColumn)
                      trHtml += `<td ${typeof columns[indexColumn].className !== "undefined"
-                           ? `class="${columns[indexColumn].className}"`
-                           : ""
+                        ? `class="${columns[indexColumn].className}"`
+                        : ""
                         }>${valueOfColumn}</td>`;
                   }
                   tbodySection.append(`${trHtml}</tr>`);
@@ -394,6 +410,7 @@
                   }
                }
             } else {
+           
                const totalColumn = $(`#${$(element).prop("id")} .datatable-header`)
                   .length;
                tbodySection.append(`
@@ -423,7 +440,7 @@
                         </div>
                     </div>
                 `);
-                $(element).append(`<div class="clearfix"></div>`);
+               $(element).append(`<div class="clearfix"></div>`);
 
             } else {
                $(element)
@@ -444,7 +461,7 @@
                      )
                   );
             }
-            if (res.total === 0) {
+            if (res.total === 0 || res.total === "0" || res.rows.length === 0) {
                $(element).find(".datatable-footer-infoTotal").html("");
                $(element).find(".datatable-footer-pagination").html("");
             }
@@ -501,29 +518,33 @@
       let startPagination = 0;
       let endPagination = 5;
 
-      elementPagination += `<li data-page="before" class="${existingPage === 1 ? "disabled" : "clickable"
-         }"><span>«</span></li>`;
-      if (existingPage - 4 > 0) {
-         elementPagination += `<li class="clickable hidden-xs"><span>1</span></li>`;
+      if (totalPage > 1) {
+         elementPagination += `<li data-page="before" class="${existingPage === 1 ? "disabled" : "clickable"
+            }"><span>«</span></li>`;
+         if (existingPage - 4 > 0) {
+            elementPagination += `<li class="clickable hidden-xs"><span>1</span></li>`;
+         }
+         if (totalPage > 5 && existingPage >= 5) {
+            startPagination = existingPage - 4;
+            endPagination =
+               existingPage + 4 >= totalPage ? totalPage : existingPage + 4;
+            elementPagination +=
+               '<li data-page="next" class="disabled hidden-xs"><span>...</span></li>';
+         } else if (totalPage < 5) {
+            endPagination = totalPage;
+         }
+         for (let index = startPagination; index < endPagination; index++) {
+            elementPagination += `<li class="clickable hidden-xs${existingPage === index + 1 ? " active" : ""
+               }"><span>${index + 1}</span></li>`;
+         }
+         if (existingPage + 4 < totalPage) {
+            elementPagination += `<li class="disabled hidden-xs"><span>...</span></li><li class="clickable hidden-xs"><span>${totalPage}</span></li>`;
+         }
+         elementPagination += `<li data-page="next" class="${existingPage === totalPage ? "disabled" : "clickable"
+            }"><span>»</span></li></ul>`;
+      } else {
+         elementPagination = "";
       }
-      if (totalPage > 5 && existingPage >= 5) {
-         startPagination = existingPage - 4;
-         endPagination =
-            existingPage + 4 >= totalPage ? totalPage : existingPage + 4;
-         elementPagination +=
-            '<li data-page="next" class="disabled hidden-xs"><span>...</span></li>';
-      } else if (totalPage < 5) {
-         endPagination = totalPage;
-      }
-      for (let index = startPagination; index < endPagination; index++) {
-         elementPagination += `<li class="clickable hidden-xs${existingPage === index + 1 ? " active" : ""
-            }"><span>${index + 1}</span></li>`;
-      }
-      if (existingPage + 4 < totalPage) {
-         elementPagination += `<li class="disabled hidden-xs"><span>...</span></li><li class="clickable hidden-xs"><span>${totalPage}</span></li>`;
-      }
-      elementPagination += `<li data-page="next" class="${existingPage === totalPage ? "disabled" : "clickable"
-         }"><span>»</span></li></ul>`;
       return elementPagination;
    }
 
@@ -601,6 +622,36 @@
          )}`;
       }
       return result;
+   }
+
+   function updateUrl(uri, dataPayload) {
+      const keyObject = Object.keys(dataPayload);
+      let result = "";
+      for (let index = 0; index < keyObject.length; index++) {
+         let key = keyObject[index];
+         let value = dataPayload[key];
+         uri = updateUrlParameter(uri, key, value)
+      }
+      return uri;
+   }
+
+
+   function updateUrlParameter(uri, key, value) {
+      // remove the hash part before operating on the uri
+      var i = uri.indexOf('#');
+      var hash = i === -1 ? '' : uri.substr(i);
+      uri = i === -1 ? uri : uri.substr(0, i);
+
+      var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+      var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+      value = `${encodeURIComponent(typeof value === "object" ? JSON.stringify(value) : value)}`;
+
+      if (uri.match(re)) {
+         uri = uri.replace(re, '$1' + key + "=" + value + '$2');
+      } else {
+         uri = uri + separator + key + "=" + value;
+      }
+      return uri + hash;  // finally append the hash as well
    }
 
    function escapeHtml(text) {
