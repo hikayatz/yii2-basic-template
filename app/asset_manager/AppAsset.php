@@ -15,7 +15,8 @@ class AppAsset extends AssetBundle
     public $js = [
         'resources/js/app.js',
         'resources/js/datatable.js',
-        'resources/js/blockUI.js',
+        'resources/js/jquery.BluckUI.min.js',
+        'resources/js/confirm.min.js',
         'resources/dist/nestable/jquery.nestable.min.js',
     ];
     public $depends = [

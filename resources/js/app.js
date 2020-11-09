@@ -41,7 +41,28 @@
       $form.find("input[type=text],input[type=hidden], textarea").val("")
       $form.find('input:checkbox').removeAttr('checked');
    }
+  
+
 
 }(jQuery));
-
+function confirmDialog(title, message, okCallback, cancelCallback = null, template = "warning"){
+   if(typeof okCallback !=="function")
+      okCallback = function(){}
+   if(typeof cancelCallback !=="function")
+      cancelCallback = function(){}
+      
+       Confirm.show(title, message, {
+         Okay : {
+            primary : true,
+            callback : function()
+            {
+               okCallback();
+               Confirm.hide(false)
+            }
+         },
+      });
+      Confirm.hideCallback= function(){
+         cancelCallback();
+      }
+}
 var func = {}

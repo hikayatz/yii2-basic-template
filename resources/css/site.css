@@ -150,15 +150,20 @@ table{
 .menu-description {
 	font-weight: normal;
 }
-label{
+label, .form-control, .breadcrumb, .help-block-error{
    font-size: 13px;
 }
-.form-group{
-   margin-bottom: 8px;
+.nav-tabs{
+   font-size: 14px;
 }
-.form-control {
-   font-size: 13px ;
-   height: 33px;
+.form-group, .help-block{
+   margin-bottom: 5px;
+}
+.modal-header {
+   padding: 12px
+}
+.form-control:not(.input-sm) {
+  
    padding: 6px 11px;
    border-radius: 0;
    background-color: #fff;
@@ -191,6 +196,13 @@ a:hover, a:focus {
     text-decoration: none;
 }
 /*  begin panel tab */
+form div.required label.control-label:after,
+th.required:after,
+td.required:after {
+	content: " * ";
+	color: red;
+}
+
 .panel.with-nav-tabs .panel-heading{
    padding: 5px 5px 0 5px;
 }

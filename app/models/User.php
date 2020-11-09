@@ -36,28 +36,11 @@ class User extends ActiveRecord implements IdentityInterface
             ['email', 'unique', 'targetClass' => self::className()],
             ['username', 'unique', 'targetClass' => self::className()],
 
-            [['last_login', 'created_at', 'updated_at', 'photo', 'access_token'], 'safe'],
             [['password_hash', 'password_reset_token'], 'string', 'max' => 255],
-            [['_image'], 'string', 'max' => 255],
-            [['_image'], 'file', 'skipOnEmpty' => true, 'extensions' => 'gif, png, jpg'],
-
-            [['old_password'], 'validateCurrentPassword', 'on' => 'update'],
-            [['old_password', 'new_password', 'repeat_password'], 'string', 'min' => 6, 'on' => 'update'],
-            [['repeat_password'], 'compare', 'compareAttribute' => 'new_password'],
-            [['old_password', 'new_password', 'repeat_password'], 'required', 'when' => function ($model) {
-                return (!empty($model->new_password));
-            }, 'whenClient' => "function (attribute, value) {
-                return ($('#user-new_password').val().length>0);
-            }"],
+          
         ];
     }
-    public function scenarios()
-    {
-        $scenarios = parent::scenarios();
-        $scenarios['password'] = ['old_password', 'new_password', 'repeat_password'];
-        $scenarios['update'] = ['old_password', 'new_password', 'repeat_password'];
-        return $scenarios;
-    }
+
     /**
      * {@inheritdoc}
      */

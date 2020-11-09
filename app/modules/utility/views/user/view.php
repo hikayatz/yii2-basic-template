@@ -3,6 +3,7 @@ use yii\helpers\Url;
 use app\models\User;
 
 $dataUrl = url::to(["get-role", "id"=> $model->id]);
+$getdata = url::to(["get-data", "id"=> $model->id]);
 
 $this->title ="Info User";
 $this->params['breadcrumbs'][] = ['label' => 'Utility', 'url' => ['/utility/default']];
@@ -41,7 +42,10 @@ $this->params['breadcrumbs'][] = $this->title;
          </div>
          <div class="panel-body">
             <div class="tab-content">
-               <div class="tab-pane fade in active" id="role">
+               <div class="tab-pane in active" id="role">
+                  <div class="text-left">
+                     <a href="<?= Url::to(["/utility/role/create"])?>" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-plus"></span> Add Role</a>
+                  </div>
                   <!--datatable begin  -->
                   <div id="datatable">
                      <div class="table-responsive">
@@ -60,8 +64,10 @@ $this->params['breadcrumbs'][] = $this->title;
                   </div>
                   <!-- datatable end -->
                </div>
-               <div class="tab-pane fade" id="update-user">Default 2</div>
-               <div class="tab-pane fade" id="activity">Default 3</div>
+               <div class="tab-pane" id="update-user">
+                 
+               </div>
+               <div class="tab-pane" id="activity">Default 3</div>
 
             </div>
          </div>
@@ -76,6 +82,7 @@ $js = <<<JS
    $("#datatable").datagrid({
       url: '$dataUrl',
       showloading: false,
+      disablePush:true,
       payload: {
          typeRecord: $('select[name="inactive"]'),
       },
